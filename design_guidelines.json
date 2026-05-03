@@ -1,0 +1,160 @@
+{
+  "project_info": {
+    "company_name": "Subterra Nexus Pvt Ltd",
+    "founded": "2025",
+    "headquarters": "Hyderabad, India",
+    "address": "Plot No 33, Phase-1 Sancharpuri Colony, New Bowenpally, Hyderabad 500011",
+    "email": "info@subterranexus.com",
+    "phone": "+91 92461 55100",
+    "tagline": "Global Commodities. Trusted Networks. Timely Delivery.",
+    "business_focus": "International commodity trading across petrochemicals, food commodities, metals, and ores. B2B and B2G.",
+    "key_markets": ["UAE", "Brazil", "Ecuador", "USA", "Asia", "MENA", "LATAM"]
+  },
+  "design_system": {
+    "theme": "light",
+    "archetype": "Archetype 4 (Swiss & High-Contrast) + Deep Corporate Navy (Hybrid)",
+    "vibe": "Premium, global, modern, high-trust, Trafigura-style enterprise.",
+    "colors": {
+      "background": {
+        "primary": "#FFFFFF",
+        "secondary": "#F8FAFC",
+        "navy_dark": "#0B1120"
+      },
+      "brand": {
+        "primary_navy": "#0A192F",
+        "accent_blue": "#2563EB",
+        "steel_grey": "#475569"
+      },
+      "text": {
+        "primary": "#0F172A",
+        "secondary": "#475569",
+        "inverse": "#FFFFFF",
+        "inverse_secondary": "#CBD5E1"
+      },
+      "border": {
+        "light": "#E2E8F0",
+        "dark": "#1E293B"
+      }
+    },
+    "typography": {
+      "fonts": {
+        "heading": "Outfit, sans-serif",
+        "body": "IBM Plex Sans, sans-serif"
+      },
+      "hierarchy": {
+        "h1": "text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900",
+        "h2": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-slate-900",
+        "h3": "text-xl sm:text-2xl font-medium text-slate-800",
+        "h4": "text-lg font-medium text-slate-800",
+        "body": "text-base text-slate-600 leading-relaxed",
+        "overline": "text-xs font-bold uppercase tracking-[0.2em] text-blue-600"
+      }
+    },
+    "spacing_and_layout": {
+      "generous_spacing": true,
+      "section_padding": "py-24 md:py-32",
+      "container": "max-w-7xl mx-auto px-6 md:px-12 lg:px-16",
+      "grid_patterns": {
+        "bento_marketing": "grid grid-cols-1 md:grid-cols-8 lg:grid-cols-12 gap-8",
+        "standard_cards": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      }
+    },
+    "surface_strategies": {
+      "header": "Crystal Glass: backdrop-blur-xl bg-white/80 border-b border-slate-200 shadow-sm",
+      "cards": "Flat background, 1px subtle border (border-slate-200), rounded-none or very subtle rounded-sm. Hover: -translate-y-1 shadow-xl shadow-blue-900/5",
+      "footer": "Deep Navy background (bg-[#0A192F]) with white/slate-300 text. py-24."
+    },
+    "components": {
+      "buttons": {
+        "primary": "bg-[#0A192F] text-white hover:bg-blue-600 transition-colors px-6 py-3 rounded-none font-medium",
+        "secondary": "bg-transparent border border-[#0A192F] text-[#0A192F] hover:bg-slate-50 transition-colors px-6 py-3 rounded-none font-medium",
+        "inquiry_cta": "bg-blue-600 text-white hover:bg-blue-700 px-5 py-2.5 rounded-none font-medium text-sm flex items-center gap-2"
+      },
+      "whatsapp_float": "fixed bottom-6 right-6 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:scale-105 transition-transform flex items-center justify-center cursor-pointer",
+      "forms": "Use Shadcn Form components. Inputs must have border-slate-300, rounded-none, focus:ring-2 focus:ring-blue-600."
+    }
+  },
+  "media": {
+    "images": {
+      "hero_bg": {
+        "url": "https://images.pexels.com/photos/3338019/pexels-photo-3338019.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Cargo operations during sunrise at a busy port",
+        "usage": "Hero section background with deep navy overlay (bg-slate-900/60)"
+      },
+      "petrochemicals": {
+        "url": "https://images.unsplash.com/photo-1653352639753-8debcc830014?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwyfHxpbmR1c3RyaWFsJTIwcmVmaW5lcnl8ZW58MHx8fHwxNzc3Nzk2MjY4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Industrial plant refinery in grayscale",
+        "usage": "Commodities grid - Petrochemicals"
+      },
+      "food_commodities": {
+        "url": "https://images.unsplash.com/photo-1688278526565-5bb028024473?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwyfHx3aGVhdCUyMGhhcnZlc3QlMjBmaWVsZHxlbnwwfHx8fDE3Nzc3OTYyODN8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Field of ripe wheat",
+        "usage": "Commodities grid - Food Commodities"
+      },
+      "metals": {
+        "url": "https://images.unsplash.com/photo-1701542206760-b13339bd226d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzJ8MHwxfHNlYXJjaHwzfHxtZXRhbCUyMG9yZXN8ZW58MHx8fHwxNzc3Nzk2MjY4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Pile of black metal rocks",
+        "usage": "Commodities grid - Metals"
+      },
+      "ores": {
+        "url": "https://images.unsplash.com/photo-1645505298235-dd222c05b7ce?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzJ8MHwxfHNlYXJjaHwyfHxtZXRhbCUyMG9yZXN8ZW58MHx8fHwxNzc3Nzk2MjY4fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Pile of colorful ores and rocks",
+        "usage": "Commodities grid - Ores"
+      },
+      "services_logistics": {
+        "url": "https://images.pexels.com/photos/14020705/pexels-photo-14020705.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Shipping containers at a port",
+        "usage": "Services section visual or About Us background"
+      }
+    }
+  },
+  "pages_and_sections": {
+    "global_elements": {
+      "navigation": "Sticky glassmorphism header. Logo left, Links center, CTA 'Send Inquiry' right. Must be visible on desktop.",
+      "floating_action": "WhatsApp button fixed bottom-right on all pages. data-testid='whatsapp-float-button'",
+      "footer": "Dark navy background. Contains Contact Info, Quick Links, and Legal."
+    },
+    "home_page": {
+      "hero": {
+        "layout": "Full screen (min-h-[80vh]). Deep navy/black overlay on image to ensure text contrast.",
+        "content": "H1: Premium enterprise messaging. Tagline. Dual CTAs: 'Explore Commodities' (Primary), 'Send Trade Inquiry' (Secondary/Outline)."
+      },
+      "about_preview": {
+        "layout": "Split layout (text left, image or stats right).",
+        "content": "Mission, Vision. High trust corporate messaging. Focus on 2025 founding and global reach."
+      },
+      "commodities": {
+        "layout": "Bento Grid or 4-column large cards.",
+        "content": "Cards for Petrochemicals, Food, Metals, Ores. CRITICAL: Every item must have a 'Send Inquiry' CTA button.",
+        "style": "Image background cards with dark gradient at bottom for text legibility. Crisp, non-rounded edges."
+      },
+      "services": {
+        "layout": "3-column grid of 6 text-heavy, clean corporate cards.",
+        "content": "Supply Chain, Risk Hedging, Freight & Logistics, Trade Finance, Storage, Quality Assurance."
+      },
+      "markets": {
+        "layout": "Clean typographic section. NO INTERACTIVE MAP. CRITICAL.",
+        "content": "List of key markets: UAE, Brazil, Ecuador, USA, Asia, MENA, LATAM. Use large typography and statistical presentation instead of a map."
+      },
+      "insights": {
+        "layout": "4-column grid of minimalistic blog cards.",
+        "style": "Border-b 'editorial ribbon' style, no heavy card enclosures. Date, Category, Title."
+      },
+      "contact": {
+        "layout": "Two-column layout. Contact Info (left) + Lead Gen Form (right).",
+        "form_fields": ["Name", "Company", "Email", "Phone", "Country", "Commodity of Interest (Select)", "Quantity", "Delivery Destination", "Message"],
+        "style": "Enterprise-grade form, clean inputs, full-width submit button."
+      }
+    }
+  },
+  "testing": {
+    "required_test_ids": [
+      "hero-primary-cta",
+      "hero-secondary-cta",
+      "commodity-inquiry-btn",
+      "whatsapp-float-button",
+      "contact-submit-btn",
+      "nav-inquiry-btn"
+    ]
+  }
+}
