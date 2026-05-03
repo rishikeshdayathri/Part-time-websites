@@ -1,0 +1,46 @@
+{
+  "summary": "First testing pass for Subterra Nexus corporate site. Backend (8/8) and Frontend (29/30) tests pass. One UX bug found: Insight cards on /insights are not clickable (no Link wrapper or onClick), so users cannot navigate from the insights listing to article detail pages. Article detail pages render correctly via direct URL.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "InsightsGrid (/app/frontend/src/components/sections/InsightsGrid.jsx)",
+        "issue": "Article cards [data-testid='insight-card-{i}'] are <article> elements with no <Link> wrapper or onClick handler. The 'Read article' label is just a <span>, not a link. Users cannot navigate from /insights listing to the article detail page (/insights/:slug). Article detail page itself renders correctly when accessed via direct URL.",
+        "selector": "[data-testid^='insight-card-']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Wrap each insight card (or the title + 'Read article' span) in <Link to={`/insights/${a.slug}`}> in /app/frontend/src/components/sections/InsightsGrid.jsx so users can navigate from listing to article detail. Keep the existing data-testid='insight-card-{i}' on the wrapping element."
+  ],
+  "critical_code_review_comments": [
+    "InsightsGrid.jsx renders article cards without any navigation handler — broken UX for the Insights/Blog feature (a top-level requirement in the PRD).",
+    "server.py uses @app.on_event('shutdown') which is deprecated in newer FastAPI; consider lifespan handlers (non-blocking).",
+    "InquiryDialog requires name + email at frontend but backend only enforces email format — name length is enforced (min_length=1) so empty name returns 422 (matches behavior, fine).",
+    "CORS allow_origins comes from env defaulting to '*' with allow_credentials=True — combination is rejected by browsers; fine for current preview but should be tightened for production."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/__init__.py"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "97%"
+  },
+  "test_credentials": "N/A (no auth in app)",
+  "seed_data_creation": "Created several TEST_ prefixed inquiries in MongoDB during pytest run (name/email/commodity test data). Not cleaned up — used as evidence of persistence and sort order.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest at /app/backend/tests/backend_test.py covers: GET /api/health (smtp_configured=false), POST /api/inquiries (valid + invalid email + minimal fields + missing-name 422), GET /api/inquiries (no _id leak, sort desc by created_at, pagination limit). All 8 backend tests pass. Frontend Playwright validated: Hero CTAs, all 7 nav routes, floating WhatsApp on every page (wa.me/919246155100 + 'Hello Subterra Nexus' message), 4 commodity categories with 19 per-item Send Inquiry buttons, Inquiry dialog open+submit (thank-you state with WhatsApp continue), Contact form valid submit reaches contact-thankyou, Contact form empty submit shows toast 'Please provide your name and email.', footer has address/email/phone, no live ticker, no interactive map. Article detail page renders correctly via direct URL (/insights/why-reliable-sourcing-matters). Only failure: insight cards on /insights not clickable — no link wrapper.",
+  "rca of the issue": "InsightsGrid.jsx (lines 36-66) iterates ARTICLES and emits <article data-testid='insight-card-{i}'> without wrapping in <Link to={`/insights/${a.slug}`}> or attaching an onClick handler. The 'Read article' affordance at line 62-64 is a <span>, not an <a> or <Link>. Reproduction: visit /insights -> click any card or the 'Read article' text -> URL stays at /insights, no navigation occurs. Mitigation: wrap the card body (image+meta+title+excerpt+'Read article') in <Link to={`/insights/${a.slug}`} className='...' data-testid={`insight-card-${i}`}> ... </Link> and remove the duplicate data-testid from the inner <article>."
+}
