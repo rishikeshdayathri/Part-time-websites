@@ -3,6 +3,7 @@ import Hero from "../components/sections/Hero";
 import AboutPreview from "../components/sections/AboutPreview";
 import CommoditiesGrid from "../components/sections/CommoditiesGrid";
 import ServicesGrid from "../components/sections/ServicesGrid";
+import InteractiveWorldMap from "../components/sections/InteractiveWorldMap";
 import MarketsSection from "../components/sections/MarketsSection";
 import InsightsGrid from "../components/sections/InsightsGrid";
 import Sustainability from "../components/sections/Sustainability";
@@ -18,6 +19,7 @@ export default function Home() {
       <AboutPreview />
       <CommoditiesGrid compact heading />
       <ServicesGrid compact />
+      <InteractiveWorldMap />
       <MarketsSection compact />
       <InsightsGrid compact limit={4} />
       <Sustainability />
