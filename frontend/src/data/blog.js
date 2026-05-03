@@ -7,7 +7,7 @@ export const ARTICLES = [
     excerpt:
       "Shifting demand centres, refining capacity additions in Asia and MENA, and the rise of specialty chemicals are reshaping global petrochemical flows. What buyers and suppliers should prepare for.",
     image:
-      "https://images.unsplash.com/photo-1496867835156-a62aeb1bd7db?auto=format&fit=crop&w=1600&q=80",
+      "https://images.pexels.com/photos/162568/oil-pump-jack-sunset-clouds-silhouette-162568.jpeg?auto=compress&cs=tinysrgb&w=1600",
     body: [
       "Global petrochemical trade is entering a new phase. Demand growth is no longer concentrated in a single region — Asia continues to absorb a major share of production while the Middle East adds refining and cracker capacity at an unprecedented pace.",
       "For buyers, this means more route options and competitive pricing. For suppliers, reliability and documentation discipline are becoming the real differentiators. Specialty chemicals, lubricants, and base oils are likely to outperform commodity volumes in the medium term.",
@@ -52,7 +52,7 @@ export const ARTICLES = [
     excerpt:
       "Trust in commodity trading is built transaction by transaction. A practical framework for counterparties on both sides — from KYC to post-delivery reporting — that compounds over years.",
     image:
-      "https://images.unsplash.com/photo-1566228015668-4c45dbc4e2f5?auto=format&fit=crop&w=1600&q=80",
+      "https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1600",
     body: [
       "Trust in trading does not come from marketing. It comes from a track record of on-time, on-spec, on-document delivery — repeated over years.",
       "Our playbook: rigorous onboarding, transparent pricing, structured contracts, disciplined execution, and honest post-delivery reporting.",

@@ -34,11 +34,12 @@ export default function InsightsGrid({ compact = false, limit }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6">
           {items.map((a, i) => (
-            <article
+            <Link
               key={a.slug}
+              to={`/insights/${a.slug}`}
+              data-testid={`insight-card-${i}`}
               className="sn-reveal group flex flex-col border-t border-slate-300 pt-6 hover:border-[#0A192F] transition-colors"
               style={{ animationDelay: `${i * 70}ms` }}
-              data-testid={`insight-card-${i}`}
             >
               <div className="overflow-hidden aspect-[4/3] bg-slate-100 mb-5">
                 <img
@@ -62,7 +63,7 @@ export default function InsightsGrid({ compact = false, limit }) {
               <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.18em] uppercase text-[#0A192F] group-hover:text-[#2563EB] transition-colors">
                 Read article <ArrowRight size={13} />
               </span>
-            </article>
+            </Link>
           ))}
         </div>
       </div>
