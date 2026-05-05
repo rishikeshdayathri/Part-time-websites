@@ -24,9 +24,9 @@ export default function Hero() {
       <div className="absolute inset-0 z-[1] sn-grid-bg-dark opacity-25 pointer-events-none" />
       <div className="absolute -top-32 -right-24 w-[640px] h-[640px] rounded-full bg-[#2563EB]/15 blur-[160px] pointer-events-none z-[1]" />
 
-      {/* Legibility overlay (left-weighted gradient) */}
-      <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-r from-[#0A192F]/95 via-[#0A192F]/70 to-[#0A192F]/15" />
-      <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-t from-[#0A192F]/85 via-transparent to-[#0A192F]/40" />
+      {/* Legibility overlay (left-weighted gradient — softer to keep the ship bright) */}
+      <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-r from-[#0A192F]/92 via-[#0A192F]/55 to-transparent" />
+      <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-t from-[#0A192F]/65 via-transparent to-[#0A192F]/25" />
 
       {/* ---- Copy (overlaid). The wrapper itself has pointer-events:none so the
               user can still drag the 3D scene through empty areas. Only the
@@ -86,7 +86,7 @@ export default function Hero() {
       {/* Caption chip — top-right of hero, hints interactivity */}
       <div className="absolute top-24 md:top-28 right-6 md:right-10 lg:right-12 z-10 inline-flex items-center gap-2 bg-[#0A192F]/65 border border-white/10 backdrop-blur-md px-3 py-2 text-[10px] uppercase tracking-[0.22em] font-display text-slate-200 pointer-events-none">
         <span className="w-1.5 h-1.5 rounded-full bg-[#60A5FA] sn-pulse-ring" />
-        Drag to rotate · 3D vessel
+        Scroll to rotate · 3D vessel
       </div>
 
       {/* Bottom marker */}

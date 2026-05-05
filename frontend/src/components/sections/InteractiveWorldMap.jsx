@@ -20,6 +20,8 @@ const HUBS = [
     blurb: "Global headquarters and trade desk. Coordinating sourcing, logistics, and execution worldwide." },
   { id: "jea", name: "Jebel Ali",  region: "UAE · MENA",   coords: [55.06, 25.01],
     blurb: "Strategic re-export hub for petrochemicals, base oils, and metals across MENA." },
+  { id: "sha", name: "Shanghai",   region: "China · Asia", coords: [121.47, 31.23],
+    blurb: "Anchor port for North-East Asia — petrochemicals, metals, and manufacturing inputs." },
   { id: "sin", name: "Singapore", region: "Asia",          coords: [103.82, 1.35],
     blurb: "Anchor port for Southeast and East Asian distribution corridors." },
   { id: "hou", name: "Houston",    region: "USA",          coords: [-95.37, 29.76],
@@ -35,6 +37,7 @@ const HUBS = [
 // Routes from HQ to each hub
 const ROUTE_PAIRS = [
   ["hyd", "jea", 7],
+  ["hyd", "sha", 8],
   ["hyd", "sin", 6],
   ["hyd", "suz", 9],
   ["hyd", "sts", 14],
