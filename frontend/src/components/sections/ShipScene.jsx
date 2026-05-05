@@ -86,9 +86,9 @@ export default function ShipScene() {
     const WATER_SEG_X = 140, WATER_SEG_Y = 70;
     const waterGeom = new THREE.PlaneGeometry(WATER_W, WATER_D, WATER_SEG_X, WATER_SEG_Y);
     const waterMat = new THREE.MeshStandardMaterial({
-      color: 0x224b86,
-      metalness: 0.55,
-      roughness: 0.32,
+      color: 0x14365e,
+      metalness: 0.4,
+      roughness: 0.55,
       side: THREE.DoubleSide,
       flatShading: false,
     });
@@ -176,12 +176,12 @@ export default function ShipScene() {
 
       shipPivot.rotation.y = autoAngle + scrollAngle;
 
-      // Gentle bob and roll on the inner ship
-      ship.position.y = -0.05 + Math.sin(elapsed * 0.6) * 0.06;
-      ship.rotation.z = Math.sin(elapsed * 0.4) * 0.018;
-      ship.rotation.x = Math.cos(elapsed * 0.5) * 0.01;
+      // Gentle bob and roll on the inner ship (smaller, more realistic)
+      ship.position.y = -0.05 + Math.sin(elapsed * 0.5) * 0.025;
+      ship.rotation.z = Math.sin(elapsed * 0.35) * 0.008;
+      ship.rotation.x = Math.cos(elapsed * 0.45) * 0.005;
 
-      // Water waves — bigger, layered swell
+      // Water waves — subtle, realistic ripple
       const pos = waterGeom.attributes.position;
       const fpos = foamGeom.attributes.position;
       const fcol = foamGeom.attributes.color;
@@ -189,15 +189,14 @@ export default function ShipScene() {
         const x = pos.getX(i);
         const z = pos.getY(i);
         const wave =
-          Math.sin(x * 0.32 + elapsed * 1.05) * 0.18 +
-          Math.cos(z * 0.42 + elapsed * 0.85) * 0.14 +
-          Math.sin((x + z) * 0.22 + elapsed * 0.55) * 0.10 +
-          Math.cos((x * 0.9 - z * 0.6) * 0.18 + elapsed * 1.3) * 0.06;
+          Math.sin(x * 0.55 + elapsed * 0.55) * 0.035 +
+          Math.cos(z * 0.65 + elapsed * 0.45) * 0.028 +
+          Math.sin((x + z) * 0.4 + elapsed * 0.32) * 0.018;
         pos.setZ(i, wave);
         // mirror displacement onto foam mesh and write per-vertex intensity
-        fpos.setZ(i, wave + 0.003);
-        const peak = Math.max(0, (wave - 0.18) * 1.6); // bright only on crests
-        const c = Math.min(1, peak);
+        fpos.setZ(i, wave + 0.002);
+        const peak = Math.max(0, (wave - 0.05) * 4.0); // very rare crest highlights
+        const c = Math.min(0.45, peak);
         fcol.setXYZ(i, c, c, c);
       }
       pos.needsUpdate = true;
@@ -205,9 +204,8 @@ export default function ShipScene() {
       fcol.needsUpdate = true;
       waterGeom.computeVertexNormals();
 
-      // Stern wake follows ship orientation (counter-rotates pivot so it stays "behind" world ship)
-      wake.position.x = -4.4 - Math.sin(elapsed * 0.6) * 0.05;
-      wakeMat.opacity = 0.55 + Math.sin(elapsed * 2.1) * 0.06;
+      // Stern wake — gentle, slowly varying
+      wakeMat.opacity = 0.22 + Math.sin(elapsed * 0.7) * 0.04;
 
       renderer.render(scene, camera);
     };
@@ -407,5 +405,65 @@ function buildShip() {
     group.add(portLightBack);
   });
 
+  // Hull nameplate — "SUBTERRA NEXUS" on both sides
+  const nameTexture = createNameplateTexture("SUBTERRA NEXUS");
+  const nameMat = new THREE.MeshBasicMaterial({
+    map: nameTexture,
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const nameGeom = new THREE.PlaneGeometry(4.2, 0.55);
+
+  // Starboard (front-facing +Z)
+  const nameStar = new THREE.Mesh(nameGeom, nameMat);
+  nameStar.position.set(-0.4, 0.18, 0.931);
+  group.add(nameStar);
+
+  // Port (back-facing -Z)
+  const namePort = new THREE.Mesh(nameGeom, nameMat);
+  namePort.position.set(-0.4, 0.18, -0.931);
+  namePort.rotation.y = Math.PI;
+  group.add(namePort);
+
   return group;
+}
+
+/* Build a transparent canvas texture with bold nameplate text. */
+function createNameplateTexture(text) {
+  const W = 1024;
+  const H = 144;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, W, H);
+
+  // Subtle drop-shadow for legibility on hull
+  ctx.shadowColor = "rgba(0, 0, 0, 0.55)";
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 2;
+
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "700 96px 'Outfit', 'Helvetica Neue', Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  if ("letterSpacing" in ctx) ctx.letterSpacing = "10px";
+  ctx.fillText(text, W / 2, H / 2 + 4);
+
+  // Small accent dot to the right of the wordmark
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#60A5FA";
+  ctx.beginPath();
+  const metrics = ctx.measureText(text);
+  const dotX = W / 2 + metrics.width / 2 + 24;
+  ctx.arc(dotX, H / 2 + 4, 8, 0, Math.PI * 2);
+  ctx.fill();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  tex.needsUpdate = true;
+  return tex;
 }
