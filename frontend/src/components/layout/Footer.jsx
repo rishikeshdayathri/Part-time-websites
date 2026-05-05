@@ -25,7 +25,7 @@ export default function Footer() {
             </div>
             <p className="text-slate-400 max-w-md text-sm leading-relaxed">
               International commodity trading across petrochemicals, food
-              commodities, metals, and ores — connecting verified suppliers and
+              commodities, metals, and minerals — connecting verified suppliers and
               buyers across Asia, MENA, LATAM, and beyond.
             </p>
             <p className="mt-6 text-xs uppercase tracking-[0.2em] text-slate-500">

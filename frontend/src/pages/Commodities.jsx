@@ -10,7 +10,7 @@ export default function Commodities() {
     <main ref={ref} data-testid="commodities-page">
       <PageHeader
         eyebrow="Commodities"
-        title="Petrochemicals. Food. Metals. Ores."
+        title="Petrochemicals. Food. Metals. Minerals."
         subtitle="Every commodity is sourced, verified, and executed through disciplined trade desk coordination. Send an inquiry on any item to speak with us directly."
       />
       <CommoditiesGrid heading={false} />

@@ -44,7 +44,7 @@ export default function About() {
                 We focus on verified counterparties, disciplined documentation,
                 and logistics partners that actually perform. Every commodity
                 we handle — from petrochemicals and food commodities to metals
-                and ores — is backed by a single accountable trade desk from
+                and minerals — is backed by a single accountable trade desk from
                 inquiry to delivery.
               </p>
             </div>

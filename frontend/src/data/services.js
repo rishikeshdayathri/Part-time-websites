@@ -11,7 +11,7 @@ export const SERVICES = [
   {
     icon: Globe2,
     title: "Global Sourcing",
-    desc: "Connecting verified suppliers and buyers across petrochemicals, food, metals, and ores.",
+    desc: "Connecting verified suppliers and buyers across petrochemicals, food, metals, and minerals.",
   },
   {
     icon: Truck,

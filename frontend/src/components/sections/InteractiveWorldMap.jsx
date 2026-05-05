@@ -25,7 +25,7 @@ const HUBS = [
   { id: "hou", name: "Houston",    region: "USA",          coords: [-95.37, 29.76],
     blurb: "Engagement with U.S. industrial and consumer supply chains." },
   { id: "sts", name: "Santos",     region: "Brazil · LATAM", coords: [-46.33, -23.95],
-    blurb: "Producer-side corridor for ores, sugar, and food commodities." },
+    blurb: "Producer-side corridor for minerals, sugar, and food commodities." },
   { id: "guy", name: "Guayaquil",  region: "Ecuador · LATAM", coords: [-79.92, -2.17],
     blurb: "LATAM origin for food commodities and metals exports." },
   { id: "suz", name: "Suez",       region: "Egypt · MENA", coords: [32.55, 29.97],

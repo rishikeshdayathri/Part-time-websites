@@ -40,7 +40,7 @@ export const ARTICLES = [
       "https://images.pexels.com/photos/3338019/pexels-photo-3338019.jpeg?auto=compress&cs=tinysrgb&w=1600",
     body: [
       "The fastest-growing corridors in global trade are no longer the traditional transatlantic ones. LATAM-to-MENA, Asia-to-LATAM, and India-to-Africa routes are expanding as producers and buyers diversify counterparties.",
-      "This creates new opportunities in food commodities, metals, and ores — but it also raises the bar for logistics coordination, currency handling, and documentation.",
+      "This creates new opportunities in food commodities, metals, and minerals — but it also raises the bar for logistics coordination, currency handling, and documentation.",
       "A well-run trade desk can turn these corridors into a competitive advantage."
     ],
   },

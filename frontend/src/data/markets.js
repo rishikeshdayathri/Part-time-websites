@@ -11,7 +11,7 @@ export const MARKETS = [
   },
   {
     region: "LATAM",
-    desc: "Direct engagement with producers and distributors across Latin America for food commodities, ores, and metals.",
+    desc: "Direct engagement with producers and distributors across Latin America for food commodities, minerals, and metals.",
     partners: "Brazil · Ecuador · Peru · Chile · Colombia",
   },
   {

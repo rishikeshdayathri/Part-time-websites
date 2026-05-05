@@ -47,10 +47,10 @@ export const COMMODITY_CATEGORIES = [
     ],
   },
   {
-    slug: "ores",
-    title: "Ores",
+    slug: "minerals",
+    title: "Minerals",
     summary:
-      "Bulk mineral ores for smelters, refiners, and industrial producers across global markets.",
+      "Bulk minerals and ores for smelters, refiners, and industrial producers across global markets.",
     image:
       "https://images.unsplash.com/photo-1645505298235-dd222c05b7ce?auto=format&fit=crop&w=1600&q=80",
     items: [
