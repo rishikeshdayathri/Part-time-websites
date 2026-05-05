@@ -15,8 +15,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           <div className="md:col-span-5">
             <div className="flex items-center gap-2.5 mb-5">
-              <span className="relative inline-flex items-center justify-center w-9 h-9 bg-white text-[#0A192F] font-display font-semibold text-sm">
-                SN
+              <span className="relative inline-flex items-center justify-center w-10 h-10 bg-white overflow-hidden">
+                <img
+                  src="https://customer-assets.emergentagent.com/job_nexus-trade-13/artifacts/xqb4b8uu_WhatsApp_Image_2026-05-05_at_21.09.23-removebg-preview.png"
+                  alt="Subterra Nexus"
+                  className="w-8 h-8 object-contain"
+                />
                 <span className="absolute -right-0.5 -bottom-0.5 w-2 h-2 bg-[#2563EB]" />
               </span>
               <span className="font-display font-semibold tracking-tight text-white text-xl">
