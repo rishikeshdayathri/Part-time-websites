@@ -81,19 +81,70 @@ export default function ShipScene() {
     const ship = buildShip();
     shipPivot.add(ship);
 
-    // ----- Water -----
-    const waterGeom = new THREE.PlaneGeometry(60, 30, 60, 30);
+    // ----- Water (bigger, more visible swell) -----
+    const WATER_W = 80, WATER_D = 40;
+    const WATER_SEG_X = 140, WATER_SEG_Y = 70;
+    const waterGeom = new THREE.PlaneGeometry(WATER_W, WATER_D, WATER_SEG_X, WATER_SEG_Y);
     const waterMat = new THREE.MeshStandardMaterial({
-      color: 0x1a3866,
-      metalness: 0.65,
-      roughness: 0.4,
+      color: 0x224b86,
+      metalness: 0.55,
+      roughness: 0.32,
       side: THREE.DoubleSide,
+      flatShading: false,
     });
     const water = new THREE.Mesh(waterGeom, waterMat);
     water.rotation.x = -Math.PI / 2;
     water.position.y = -0.55;
     water.receiveShadow = true;
     scene.add(water);
+
+    // Foam crest layer (slightly above water, additive white where waves peak)
+    const foamGeom = new THREE.PlaneGeometry(WATER_W, WATER_D, WATER_SEG_X, WATER_SEG_Y);
+    const foamMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+    });
+    // Per-vertex transparency via vertex colors
+    const foamColors = new Float32Array(foamGeom.attributes.position.count * 3);
+    foamGeom.setAttribute("color", new THREE.BufferAttribute(foamColors, 3));
+    foamMat.vertexColors = true;
+    foamMat.opacity = 1.0; // colors carry the alpha-as-intensity
+    const foam = new THREE.Mesh(foamGeom, foamMat);
+    foam.rotation.x = -Math.PI / 2;
+    foam.position.y = -0.535;
+    scene.add(foam);
+
+    // Stern wake — a long bright streak behind the ship
+    const wakeGeom = new THREE.PlaneGeometry(7.5, 0.9, 40, 4);
+    const wakeMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.55,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    });
+    // Fade ends with vertex colors
+    const wakeColors = new Float32Array(wakeGeom.attributes.position.count * 3);
+    const wakePos = wakeGeom.attributes.position;
+    for (let i = 0; i < wakePos.count; i++) {
+      const u = (wakePos.getX(i) + 7.5 / 2) / 7.5; // 0..1 along length
+      const v = Math.abs(wakePos.getY(i)) / (0.9 / 2); // 0..1 across width
+      const a = (1 - u) * (1 - v); // bright near ship, fades back & to edges
+      wakeColors[i * 3 + 0] = a;
+      wakeColors[i * 3 + 1] = a;
+      wakeColors[i * 3 + 2] = a;
+    }
+    wakeGeom.setAttribute("color", new THREE.BufferAttribute(wakeColors, 3));
+    wakeMat.vertexColors = true;
+    const wake = new THREE.Mesh(wakeGeom, wakeMat);
+    wake.rotation.x = -Math.PI / 2;
+    wake.position.set(-4.4, -0.535, 0);
+    shipPivot.add(wake);
 
     // ----- Auto + scroll-driven rotation -----
     let autoAngle = 0;                         // continuous spin
@@ -130,19 +181,33 @@ export default function ShipScene() {
       ship.rotation.z = Math.sin(elapsed * 0.4) * 0.018;
       ship.rotation.x = Math.cos(elapsed * 0.5) * 0.01;
 
-      // Water waves
+      // Water waves — bigger, layered swell
       const pos = waterGeom.attributes.position;
+      const fpos = foamGeom.attributes.position;
+      const fcol = foamGeom.attributes.color;
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
         const z = pos.getY(i);
         const wave =
-          Math.sin(x * 0.45 + elapsed * 1.1) * 0.06 +
-          Math.cos(z * 0.55 + elapsed * 0.9) * 0.05 +
-          Math.sin((x + z) * 0.3 + elapsed * 0.6) * 0.04;
+          Math.sin(x * 0.32 + elapsed * 1.05) * 0.18 +
+          Math.cos(z * 0.42 + elapsed * 0.85) * 0.14 +
+          Math.sin((x + z) * 0.22 + elapsed * 0.55) * 0.10 +
+          Math.cos((x * 0.9 - z * 0.6) * 0.18 + elapsed * 1.3) * 0.06;
         pos.setZ(i, wave);
+        // mirror displacement onto foam mesh and write per-vertex intensity
+        fpos.setZ(i, wave + 0.003);
+        const peak = Math.max(0, (wave - 0.18) * 1.6); // bright only on crests
+        const c = Math.min(1, peak);
+        fcol.setXYZ(i, c, c, c);
       }
       pos.needsUpdate = true;
+      fpos.needsUpdate = true;
+      fcol.needsUpdate = true;
       waterGeom.computeVertexNormals();
+
+      // Stern wake follows ship orientation (counter-rotates pivot so it stays "behind" world ship)
+      wake.position.x = -4.4 - Math.sin(elapsed * 0.6) * 0.05;
+      wakeMat.opacity = 0.55 + Math.sin(elapsed * 2.1) * 0.06;
 
       renderer.render(scene, camera);
     };

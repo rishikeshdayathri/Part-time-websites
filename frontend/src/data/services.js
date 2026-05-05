@@ -1,5 +1,5 @@
 import {
-  Ship, Globe2, Truck, ShieldCheck, Landmark, Warehouse,
+  Ship, Globe2, Truck, ShieldCheck, Landmark,
 } from "lucide-react";
 
 export const SERVICES = [
@@ -27,10 +27,5 @@ export const SERVICES = [
     icon: Landmark,
     title: "Trade Financing Support",
     desc: "Assisting in structuring transactions through financial coordination when required.",
-  },
-  {
-    icon: Warehouse,
-    title: "Warehousing Support",
-    desc: "Storage and inventory coordination through logistics partners.",
   },
 ];
