@@ -43,14 +43,14 @@ export default function Header() {
       >
         <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-12 h-16 md:h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5 group" data-testid="nav-logo">
-            <span className="relative inline-flex items-center justify-center w-9 h-9 bg-[#0A192F] overflow-hidden">
+            <span className="relative inline-flex items-center justify-center w-9 h-9 bg-[#0A192F]">
               <img
                 src="https://customer-assets.emergentagent.com/job_nexus-trade-13/artifacts/xqb4b8uu_WhatsApp_Image_2026-05-05_at_21.09.23-removebg-preview.png"
                 alt="Subterra Nexus"
                 className="w-7 h-7 object-contain"
                 style={{ filter: "brightness(0) invert(1)" }}
               />
-              <span className="absolute -right-0.5 -bottom-0.5 w-2 h-2 bg-[#2563EB]" />
+              <span className="absolute -right-2 -bottom-2 w-2.5 h-2.5 bg-[#2563EB]" />
             </span>
             <span className="font-display font-semibold tracking-tight text-[#0A192F] text-lg">
               Subterra Nexus

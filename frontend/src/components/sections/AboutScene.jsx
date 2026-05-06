@@ -56,9 +56,9 @@ export default function AboutScene() {
     // Parallels (lat lines) — finer, thinner
     const parallelsGeom = buildParallels(RADIUS, 11, 128);
     const parallelsMat = new THREE.LineBasicMaterial({
-      color: 0x2563eb,
+      color: 0x1e3a8a,
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.5,
     });
     const parallels = new THREE.LineSegments(parallelsGeom, parallelsMat);
     globe.add(parallels);
@@ -66,9 +66,9 @@ export default function AboutScene() {
     // Meridians (lng lines)
     const meridiansGeom = buildMeridians(RADIUS, 18, 96);
     const meridiansMat = new THREE.LineBasicMaterial({
-      color: 0x60a5fa,
+      color: 0x1d4ed8,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.62,
     });
     const meridians = new THREE.LineSegments(meridiansGeom, meridiansMat);
     globe.add(meridians);
