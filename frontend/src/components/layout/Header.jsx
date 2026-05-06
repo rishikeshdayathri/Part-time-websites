@@ -50,7 +50,7 @@ export default function Header() {
                 className="w-7 h-7 object-contain"
                 style={{ filter: "brightness(0) invert(1)" }}
               />
-              <span className="absolute -right-2 -bottom-2 w-2.5 h-2.5 bg-[#2563EB]" />
+              <span className="absolute -right-1 -bottom-1 w-2.5 h-2.5 bg-[#2563EB]" />
             </span>
             <span className="font-display font-semibold tracking-tight text-[#0A192F] text-lg">
               Subterra Nexus

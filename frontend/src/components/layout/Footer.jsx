@@ -21,7 +21,7 @@ export default function Footer() {
                   alt="Subterra Nexus"
                   className="w-8 h-8 object-contain"
                 />
-                <span className="absolute -right-2 -bottom-2 w-2.5 h-2.5 bg-[#2563EB]" />
+                <span className="absolute -right-1 -bottom-1 w-2.5 h-2.5 bg-[#2563EB]" />
               </span>
               <span className="font-display font-semibold tracking-tight text-white text-xl">
                 Subterra Nexus
