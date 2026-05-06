@@ -22,7 +22,7 @@ export default function ShipScene() {
 
     // ----- Scene / camera / renderer -----
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x132849, 16, 36);
+    scene.fog = new THREE.Fog(0x132849, 18, 38);
 
     const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
     camera.position.set(7, 3.6, 7.5);
@@ -81,14 +81,40 @@ export default function ShipScene() {
     const ship = buildShip();
     shipPivot.add(ship);
 
-    // ----- Water (bigger, more visible swell) -----
-    const WATER_W = 80, WATER_D = 40;
-    const WATER_SEG_X = 140, WATER_SEG_Y = 70;
+    // ----- Water (large plane with soft circular fade — no visible rectangle edges) -----
+    const WATER_W = 140, WATER_D = 90;
+    const WATER_SEG_X = 180, WATER_SEG_Y = 120;
+    const FADE_INNER = 14;   // fully ocean within this radius
+    const FADE_OUTER = 42;   // fully blended into horizon by this radius
+
+    // Water colour and "horizon" colour (must match fog/ambient navy)
+    const WATER_RGB  = { r: 0.078, g: 0.211, b: 0.368 }; // ~ #14365E
+    const HORIZON_RGB = { r: 0.075, g: 0.157, b: 0.286 }; // ~ #132849 (matches fog)
+
     const waterGeom = new THREE.PlaneGeometry(WATER_W, WATER_D, WATER_SEG_X, WATER_SEG_Y);
+
+    // Per-vertex radial blend factor (1 = open ocean, 0 = horizon)
+    const fadeArr = new Float32Array(waterGeom.attributes.position.count);
+    const colorsArr = new Float32Array(waterGeom.attributes.position.count * 3);
+    for (let i = 0; i < waterGeom.attributes.position.count; i++) {
+      const x = waterGeom.attributes.position.getX(i);
+      const y = waterGeom.attributes.position.getY(i);
+      const d = Math.sqrt(x * x + y * y);
+      let f = 1 - (d - FADE_INNER) / (FADE_OUTER - FADE_INNER);
+      if (f > 1) f = 1; if (f < 0) f = 0;
+      // smooth-step
+      f = f * f * (3 - 2 * f);
+      fadeArr[i] = f;
+      colorsArr[i * 3 + 0] = WATER_RGB.r * f + HORIZON_RGB.r * (1 - f);
+      colorsArr[i * 3 + 1] = WATER_RGB.g * f + HORIZON_RGB.g * (1 - f);
+      colorsArr[i * 3 + 2] = WATER_RGB.b * f + HORIZON_RGB.b * (1 - f);
+    }
+    waterGeom.setAttribute("color", new THREE.BufferAttribute(colorsArr, 3));
+
     const waterMat = new THREE.MeshStandardMaterial({
-      color: 0x14365e,
-      metalness: 0.4,
-      roughness: 0.55,
+      vertexColors: true,
+      metalness: 0.32,
+      roughness: 0.62,
       side: THREE.DoubleSide,
       flatShading: false,
     });
@@ -103,16 +129,14 @@ export default function ShipScene() {
     const foamMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.0,
+      opacity: 1.0,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       side: THREE.DoubleSide,
     });
-    // Per-vertex transparency via vertex colors
     const foamColors = new Float32Array(foamGeom.attributes.position.count * 3);
     foamGeom.setAttribute("color", new THREE.BufferAttribute(foamColors, 3));
     foamMat.vertexColors = true;
-    foamMat.opacity = 1.0; // colors carry the alpha-as-intensity
     const foam = new THREE.Mesh(foamGeom, foamMat);
     foam.rotation.x = -Math.PI / 2;
     foam.position.y = -0.535;
@@ -181,22 +205,33 @@ export default function ShipScene() {
       ship.rotation.z = Math.sin(elapsed * 0.35) * 0.008;
       ship.rotation.x = Math.cos(elapsed * 0.45) * 0.005;
 
-      // Water waves — subtle, realistic ripple
+      // Realistic multi-layer water — gentler swell + small ripples,
+      // with wave amplitude radially attenuated near horizon (so the disc looks calm at edges).
       const pos = waterGeom.attributes.position;
       const fpos = foamGeom.attributes.position;
       const fcol = foamGeom.attributes.color;
       for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
-        const z = pos.getY(i);
-        const wave =
-          Math.sin(x * 0.55 + elapsed * 0.55) * 0.035 +
-          Math.cos(z * 0.65 + elapsed * 0.45) * 0.028 +
-          Math.sin((x + z) * 0.4 + elapsed * 0.32) * 0.018;
+        const y = pos.getY(i);
+        const f = fadeArr[i]; // 1 inside, 0 at horizon
+        // Base swell (long wavelength, low frequency)
+        const swell =
+          Math.sin(x * 0.18 + elapsed * 0.42) * 0.045 +
+          Math.cos(y * 0.22 + elapsed * 0.36) * 0.038;
+        // Mid chop
+        const chop =
+          Math.sin((x + y) * 0.55 + elapsed * 0.7) * 0.018 +
+          Math.cos((x - y) * 0.65 + elapsed * 0.55) * 0.014;
+        // High-frequency ripples
+        const ripple =
+          Math.sin(x * 1.6 + elapsed * 1.4) * 0.006 +
+          Math.cos(y * 1.8 + elapsed * 1.2) * 0.005;
+        const wave = (swell + chop + ripple) * (0.25 + 0.75 * f);
         pos.setZ(i, wave);
-        // mirror displacement onto foam mesh and write per-vertex intensity
         fpos.setZ(i, wave + 0.002);
-        const peak = Math.max(0, (wave - 0.05) * 4.0); // very rare crest highlights
-        const c = Math.min(0.45, peak);
+        // Foam: only on bright crests, never near horizon
+        const peak = Math.max(0, (wave - 0.045) * 4.5) * f;
+        const c = Math.min(0.4, peak);
         fcol.setXYZ(i, c, c, c);
       }
       pos.needsUpdate = true;
@@ -204,8 +239,8 @@ export default function ShipScene() {
       fcol.needsUpdate = true;
       waterGeom.computeVertexNormals();
 
-      // Stern wake — gentle, slowly varying
-      wakeMat.opacity = 0.22 + Math.sin(elapsed * 0.7) * 0.04;
+      // Stern wake — subtle, slow opacity breathing
+      wakeMat.opacity = 0.20 + Math.sin(elapsed * 0.6) * 0.03;
 
       renderer.render(scene, camera);
     };

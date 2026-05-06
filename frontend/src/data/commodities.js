@@ -10,6 +10,7 @@ export const COMMODITY_CATEGORIES = [
     items: [
       { name: "LPG",             desc: "Liquefied Petroleum Gas — bulk and packaged supply." },
       { name: "Methanol",        desc: "Industrial-grade methanol for chemical and fuel applications." },
+      { name: "Urea",            desc: "Granular and prilled urea for fertilizer and industrial applications." },
       { name: "SN150 Base Oil",  desc: "Light-viscosity base oil for lubricant blending." },
       { name: "SN500 Base Oil",  desc: "Medium-viscosity base oil for industrial lubricants." },
       { name: "Acetone",         desc: "High-purity acetone for solvent and pharma use." },
