@@ -2,15 +2,8 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 /**
- * AboutScene — sleek 3D background for the About section.
- *
- * Visual metaphor for "global trade network":
- *  - ~60 floating particle nodes (suppliers / buyers / hubs).
- *  - ~10 low-poly wireframe shapes (commodity units: cubes, octahedrons, icosahedrons).
- *  - Static nearest-neighbour line connections that flex as nodes drift.
- *  - Whole network rotates slowly, individual nodes bob.
- *
- * Tuned for a white section: soft brand-blue tones, low alpha, no harsh contrast.
+ * AboutScene — a single elegant rotating 3D globe.
+ * Sits to the right of the section as a quiet visual anchor.
  */
 export default function AboutScene() {
   const mountRef = useRef(null);
@@ -27,10 +20,9 @@ export default function AboutScene() {
 
     // ----- Scene / camera / renderer -----
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xffffff, 14, 28);
 
-    const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
-    camera.position.set(0, 0, 14);
+    const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
+    camera.position.set(0, 0, 12);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({
@@ -45,175 +37,110 @@ export default function AboutScene() {
     mount.appendChild(renderer.domElement);
 
     // ----- Lights -----
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.95));
     const key = new THREE.DirectionalLight(0x60a5fa, 0.6);
-    key.position.set(4, 6, 8);
+    key.position.set(4, 5, 6);
     scene.add(key);
 
-    // ----- Network group (slowly rotates as a whole) -----
-    const network = new THREE.Group();
-    scene.add(network);
+    // ----- Globe group (positioned right side of canvas) -----
+    const globe = new THREE.Group();
+    globe.position.set(3.6, 0, 0);
+    scene.add(globe);
 
-    // ----- Vibrant brand-aligned palette -----
-    const PALETTE = [
-      0x2563eb, // blue
-      0x60a5fa, // light blue
-      0x22d3ee, // cyan
-      0x10b981, // emerald
-      0xfacc15, // amber
-      0xf97316, // orange
-      0xef4444, // red
-      0xec4899, // pink
-      0xa855f7, // purple
-      0x14b8a6, // teal
-    ];
+    const RADIUS = 2.4;
 
-    // ----- Particle nodes -----
-    const NODE_COUNT = 60;
-    const RADIUS = 9;
-    const nodes = [];
-    const nodeGeom = new THREE.SphereGeometry(0.085, 14, 14);
-    for (let i = 0; i < NODE_COUNT; i++) {
-      // Distribute roughly on a wide flat shell with some thickness
-      const u = Math.random();
-      const v = Math.random();
-      const theta = u * Math.PI * 2;
-      const phi = Math.acos(2 * v - 1);
-      const r = RADIUS * (0.45 + Math.random() * 0.55);
-      const x = r * Math.sin(phi) * Math.cos(theta);
-      const y = (Math.random() - 0.5) * 5.5;
-      const z = r * Math.sin(phi) * Math.sin(theta) * 0.55; // flatten depth
-      const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-      const mat = new THREE.MeshBasicMaterial({
-        color,
-        transparent: true,
-        opacity: 0.9,
-      });
-      const mesh = new THREE.Mesh(nodeGeom, mat);
-      mesh.position.set(x, y, z);
-      mesh.userData = {
-        baseY: y,
-        speed: 0.3 + Math.random() * 0.5,
-        phase: Math.random() * Math.PI * 2,
-        amp: 0.2 + Math.random() * 0.35,
-        color,
-      };
-      network.add(mesh);
-      nodes.push(mesh);
-    }
-
-    // ----- Pulse rings around a few "hub" nodes (inherit node colour) -----
-    const hubIndices = [0, 7, 14, 23, 31, 42];
-    const hubRings = hubIndices.map((idx) => {
-      const ringGeom = new THREE.RingGeometry(0.18, 0.21, 32);
-      const mat = new THREE.MeshBasicMaterial({
-        color: nodes[idx].userData.color,
-        transparent: true,
-        opacity: 0.55,
-        side: THREE.DoubleSide,
-      });
-      const ring = new THREE.Mesh(ringGeom, mat);
-      ring.position.copy(nodes[idx].position);
-      ring.userData = { phase: Math.random() * Math.PI * 2 };
-      network.add(ring);
-      return { ring, nodeIdx: idx };
+    // 1) Solid sphere — soft brand-blue fill with subtle gradient feel
+    const solidGeom = new THREE.IcosahedronGeometry(RADIUS, 6);
+    const solidMat = new THREE.MeshPhongMaterial({
+      color: 0xeff6ff,
+      emissive: 0x1d4ed8,
+      emissiveIntensity: 0.08,
+      shininess: 25,
+      specular: 0x60a5fa,
+      transparent: true,
+      opacity: 0.85,
     });
+    const solid = new THREE.Mesh(solidGeom, solidMat);
+    globe.add(solid);
 
-    // ----- Connection lines (each node → 2 nearest neighbours) -----
-    const linePairs = [];
-    for (let i = 0; i < nodes.length; i++) {
-      const distances = [];
-      for (let j = 0; j < nodes.length; j++) {
-        if (i === j) continue;
-        distances.push({ j, d: nodes[i].position.distanceTo(nodes[j].position) });
-      }
-      distances.sort((a, b) => a.d - b.d);
-      for (let k = 0; k < 2; k++) {
-        const a = i;
-        const b = distances[k].j;
-        // de-dup — only push once per unordered pair
-        const key = a < b ? `${a}-${b}` : `${b}-${a}`;
-        if (!linePairs.find((p) => p.key === key)) {
-          linePairs.push({ key, a, b });
-        }
-      }
-    }
-
-    const linePositions = new Float32Array(linePairs.length * 2 * 3);
-    const lineColors = new Float32Array(linePairs.length * 2 * 3);
-    // Each line takes the avg colour of its endpoint nodes
-    for (let i = 0; i < linePairs.length; i++) {
-      const ca = new THREE.Color(nodes[linePairs[i].a].userData.color);
-      const cb = new THREE.Color(nodes[linePairs[i].b].userData.color);
-      const o = i * 6;
-      lineColors[o + 0] = ca.r; lineColors[o + 1] = ca.g; lineColors[o + 2] = ca.b;
-      lineColors[o + 3] = cb.r; lineColors[o + 4] = cb.g; lineColors[o + 5] = cb.b;
-    }
-    const lineGeom = new THREE.BufferGeometry();
-    lineGeom.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
-    lineGeom.setAttribute("color", new THREE.BufferAttribute(lineColors, 3));
-    const lineMat = new THREE.LineBasicMaterial({
-      vertexColors: true,
+    // 2) Wireframe overlay — meridians & parallels feel
+    const wireGeom = new THREE.IcosahedronGeometry(RADIUS * 1.005, 3);
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0x2563eb,
+      wireframe: true,
       transparent: true,
       opacity: 0.45,
     });
-    const lines = new THREE.LineSegments(lineGeom, lineMat);
-    network.add(lines);
+    const wire = new THREE.Mesh(wireGeom, wireMat);
+    globe.add(wire);
 
-    // ----- Floating commodity shapes (low-poly) -----
-    const shapes = [];
-    const SHAPE_PRESETS = [
-      () => new THREE.IcosahedronGeometry(0.55, 0),
-      () => new THREE.OctahedronGeometry(0.55, 0),
-      () => new THREE.BoxGeometry(0.7, 0.7, 0.7),
-      () => new THREE.DodecahedronGeometry(0.55, 0),
-      () => new THREE.TetrahedronGeometry(0.65, 0),
+    // 3) Equator & rotation axis rings
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: 0x60a5fa,
+      transparent: true,
+      opacity: 0.5,
+      side: THREE.DoubleSide,
+    });
+    const equator = new THREE.Mesh(new THREE.RingGeometry(RADIUS * 1.04, RADIUS * 1.05, 96), ringMat);
+    equator.rotation.x = Math.PI / 2;
+    globe.add(equator);
+
+    const tilted = new THREE.Mesh(new THREE.RingGeometry(RADIUS * 1.07, RADIUS * 1.08, 96), ringMat.clone());
+    tilted.rotation.x = Math.PI / 2;
+    tilted.rotation.z = Math.PI / 6;
+    tilted.material.opacity = 0.32;
+    globe.add(tilted);
+
+    // 4) Hub markers on globe surface (small dots that travel with the globe)
+    const HUBS_LATLNG = [
+      [17.4, 78.5],   // Hyderabad
+      [25.0, 55.1],   // Jebel Ali (UAE)
+      [31.2, 121.5],  // Shanghai
+      [1.3, 103.8],   // Singapore
+      [29.8, -95.4],  // Houston
+      [-23.9, -46.3], // Santos
+      [-2.2, -79.9],  // Guayaquil
+      [30.0, 32.5],   // Suez
     ];
-    const SHAPE_COUNT = 11;
-    for (let i = 0; i < SHAPE_COUNT; i++) {
-      const Geom = SHAPE_PRESETS[i % SHAPE_PRESETS.length]();
-      const wireColor = PALETTE[(i * 3) % PALETTE.length];
-      const fillColor = PALETTE[(i * 3 + 5) % PALETTE.length];
-      const wireMat = new THREE.MeshBasicMaterial({
-        color: wireColor,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.45,
-      });
-      const fillMat = new THREE.MeshBasicMaterial({
-        color: fillColor,
-        transparent: true,
-        opacity: 0.12,
-      });
-      const grp = new THREE.Group();
-      const wireMesh = new THREE.Mesh(Geom, wireMat);
-      const fillMesh = new THREE.Mesh(Geom, fillMat);
-      grp.add(wireMesh);
-      grp.add(fillMesh);
+    const hubColors = [0xfacc15, 0x60a5fa, 0xef4444, 0x10b981, 0x60a5fa, 0xf97316, 0xa855f7, 0x22d3ee];
+    const hubMeshes = [];
+    HUBS_LATLNG.forEach(([lat, lng], idx) => {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lng + 180) * (Math.PI / 180);
+      const r = RADIUS * 1.02;
+      const x = -r * Math.sin(phi) * Math.cos(theta);
+      const y =  r * Math.cos(phi);
+      const z =  r * Math.sin(phi) * Math.sin(theta);
 
-      const angle = (i / SHAPE_COUNT) * Math.PI * 2;
-      const r = 5 + Math.random() * 4;
-      grp.position.set(
-        Math.cos(angle) * r,
-        (Math.random() - 0.5) * 4.5,
-        Math.sin(angle) * r * 0.6 - 1
-      );
-      grp.userData = {
-        baseY: grp.position.y,
-        bobAmp: 0.35 + Math.random() * 0.4,
-        bobSpeed: 0.25 + Math.random() * 0.4,
-        phase: Math.random() * Math.PI * 2,
-        rotSpeed: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.4,
-          (Math.random() - 0.5) * 0.5,
-          (Math.random() - 0.5) * 0.3
-        ),
-      };
-      const scale = 0.6 + Math.random() * 0.6;
-      grp.scale.setScalar(scale);
-      network.add(grp);
-      shapes.push(grp);
-    }
+      const dotMat = new THREE.MeshBasicMaterial({ color: hubColors[idx] });
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), dotMat);
+      dot.position.set(x, y, z);
+      globe.add(dot);
+
+      // Outer pulse ring at hub location, oriented to face outward
+      const pulseMat = new THREE.MeshBasicMaterial({
+        color: hubColors[idx],
+        transparent: true,
+        opacity: 0.7,
+        side: THREE.DoubleSide,
+      });
+      const pulse = new THREE.Mesh(new THREE.RingGeometry(0.06, 0.085, 24), pulseMat);
+      pulse.position.set(x, y, z);
+      pulse.lookAt(0, 0, 0);
+      pulse.userData = { phase: idx * 0.4 };
+      globe.add(pulse);
+      hubMeshes.push(pulse);
+    });
+
+    // 5) Outer atmospheric halo
+    const haloMat = new THREE.MeshBasicMaterial({
+      color: 0x60a5fa,
+      transparent: true,
+      opacity: 0.06,
+      side: THREE.BackSide,
+    });
+    const halo = new THREE.Mesh(new THREE.SphereGeometry(RADIUS * 1.18, 48, 48), haloMat);
+    globe.add(halo);
 
     // ----- Animation loop -----
     let raf = 0;
@@ -227,50 +154,19 @@ export default function AboutScene() {
       lastT = now;
       const elapsed = now / 1000;
 
-      // Whole network slow Y rotation
-      network.rotation.y += dt * 0.06;
-      network.rotation.x = Math.sin(elapsed * 0.15) * 0.05;
+      // Slow global rotation
+      globe.rotation.y += dt * 0.18;
+      globe.rotation.x = Math.sin(elapsed * 0.18) * 0.07;
 
-      // Bob each node
-      for (let i = 0; i < nodes.length; i++) {
-        const n = nodes[i];
-        n.position.y =
-          n.userData.baseY +
-          Math.sin(elapsed * n.userData.speed + n.userData.phase) *
-            n.userData.amp;
-      }
-
-      // Update line positions
-      const linePos = lineGeom.attributes.position.array;
-      for (let i = 0; i < linePairs.length; i++) {
-        const { a, b } = linePairs[i];
-        const pa = nodes[a].position;
-        const pb = nodes[b].position;
-        const o = i * 6;
-        linePos[o + 0] = pa.x; linePos[o + 1] = pa.y; linePos[o + 2] = pa.z;
-        linePos[o + 3] = pb.x; linePos[o + 4] = pb.y; linePos[o + 5] = pb.z;
-      }
-      lineGeom.attributes.position.needsUpdate = true;
+      // Counter-rotate the wireframe slightly for visual depth
+      wire.rotation.y -= dt * 0.05;
 
       // Pulse hub rings
-      hubRings.forEach(({ ring, nodeIdx }) => {
-        ring.position.copy(nodes[nodeIdx].position);
-        const t = (elapsed * 0.6 + ring.userData.phase) % 2;
-        ring.scale.setScalar(1 + t * 5);
-        ring.material.opacity = Math.max(0, 0.55 * (1 - t / 2));
+      hubMeshes.forEach((m) => {
+        const t = (elapsed * 0.9 + m.userData.phase) % 2;
+        m.scale.setScalar(1 + t * 3);
+        m.material.opacity = Math.max(0, 0.7 * (1 - t / 2));
       });
-
-      // Float and rotate commodity shapes
-      for (let i = 0; i < shapes.length; i++) {
-        const s = shapes[i];
-        s.position.y =
-          s.userData.baseY +
-          Math.sin(elapsed * s.userData.bobSpeed + s.userData.phase) *
-            s.userData.bobAmp;
-        s.rotation.x += dt * s.userData.rotSpeed.x;
-        s.rotation.y += dt * s.userData.rotSpeed.y;
-        s.rotation.z += dt * s.userData.rotSpeed.z;
-      }
 
       renderer.render(scene, camera);
     };

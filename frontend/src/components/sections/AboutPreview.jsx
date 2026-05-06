@@ -14,9 +14,8 @@ export default function AboutPreview() {
         </Suspense>
       </div>
 
-      {/* Soft white wash so text stays crisp over the animation */}
-      <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-white via-white/85 to-white/55" />
-      <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-white/70 via-transparent to-white/70" />
+      {/* Soft left-only wash so text remains crisp; right side stays clear so the globe shows through */}
+      <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-r from-white via-white/70 to-transparent" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
