@@ -22,7 +22,7 @@ export default function ShipScene() {
 
     // ----- Scene / camera / renderer -----
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x132849, 18, 38);
+    scene.fog = new THREE.Fog(0x15284a, 22, 46);
 
     const camera = new THREE.PerspectiveCamera(38, w / h, 0.1, 100);
     camera.position.set(7, 3.6, 7.5);
@@ -81,19 +81,18 @@ export default function ShipScene() {
     const ship = buildShip();
     shipPivot.add(ship);
 
-    // ----- Water (large plane with soft circular fade — no visible rectangle edges) -----
-    const WATER_W = 140, WATER_D = 90;
-    const WATER_SEG_X = 180, WATER_SEG_Y = 120;
+    // ----- Water (true circular disc — no rectangular edges) -----
     const FADE_INNER = 14;   // fully ocean within this radius
-    const FADE_OUTER = 42;   // fully blended into horizon by this radius
+    const FADE_OUTER = 50;   // fully blended into horizon by this radius
+    const MAX_R = FADE_OUTER;
 
-    // Water colour and "horizon" colour (must match fog/ambient navy)
-    const WATER_RGB  = { r: 0.078, g: 0.211, b: 0.368 }; // ~ #14365E
-    const HORIZON_RGB = { r: 0.075, g: 0.157, b: 0.286 }; // ~ #132849 (matches fog)
+    // Slightly darker, realistic ocean colour + matching horizon
+    const WATER_RGB   = { r: 0.106, g: 0.247, b: 0.420 }; // ~ #1B3F6B
+    const HORIZON_RGB = { r: 0.082, g: 0.157, b: 0.290 }; // ~ #15284A (matches fog)
 
-    const waterGeom = new THREE.PlaneGeometry(WATER_W, WATER_D, WATER_SEG_X, WATER_SEG_Y);
+    const waterGeom = buildCircularPlane(MAX_R, 90, 144);
 
-    // Per-vertex radial blend factor (1 = open ocean, 0 = horizon)
+    // Per-vertex radial blend factor (1 = ocean, 0 = horizon)
     const fadeArr = new Float32Array(waterGeom.attributes.position.count);
     const colorsArr = new Float32Array(waterGeom.attributes.position.count * 3);
     for (let i = 0; i < waterGeom.attributes.position.count; i++) {
@@ -102,8 +101,7 @@ export default function ShipScene() {
       const d = Math.sqrt(x * x + y * y);
       let f = 1 - (d - FADE_INNER) / (FADE_OUTER - FADE_INNER);
       if (f > 1) f = 1; if (f < 0) f = 0;
-      // smooth-step
-      f = f * f * (3 - 2 * f);
+      f = f * f * (3 - 2 * f); // smooth-step
       fadeArr[i] = f;
       colorsArr[i * 3 + 0] = WATER_RGB.r * f + HORIZON_RGB.r * (1 - f);
       colorsArr[i * 3 + 1] = WATER_RGB.g * f + HORIZON_RGB.g * (1 - f);
@@ -113,8 +111,8 @@ export default function ShipScene() {
 
     const waterMat = new THREE.MeshStandardMaterial({
       vertexColors: true,
-      metalness: 0.32,
-      roughness: 0.62,
+      metalness: 0.45,
+      roughness: 0.5,
       side: THREE.DoubleSide,
       flatShading: false,
     });
@@ -124,8 +122,8 @@ export default function ShipScene() {
     water.receiveShadow = true;
     scene.add(water);
 
-    // Foam crest layer (slightly above water, additive white where waves peak)
-    const foamGeom = new THREE.PlaneGeometry(WATER_W, WATER_D, WATER_SEG_X, WATER_SEG_Y);
+    // Foam crest layer (mirrors water geometry; carries per-vertex intensity)
+    const foamGeom = buildCircularPlane(MAX_R, 90, 144);
     const foamMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -133,10 +131,10 @@ export default function ShipScene() {
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       side: THREE.DoubleSide,
+      vertexColors: true,
     });
     const foamColors = new Float32Array(foamGeom.attributes.position.count * 3);
     foamGeom.setAttribute("color", new THREE.BufferAttribute(foamColors, 3));
-    foamMat.vertexColors = true;
     const foam = new THREE.Mesh(foamGeom, foamMat);
     foam.rotation.x = -Math.PI / 2;
     foam.position.y = -0.535;
@@ -295,6 +293,57 @@ export default function ShipScene() {
       data-testid="ship-canvas"
     />
   );
+}
+
+/* ------------------------------------------------------------------ */
+/* Build a flat circular disc geometry (no rectangular edges).         */
+/* Vertices = 1 center + ringCount × angularCount, in a fan + ring grid */
+/* ------------------------------------------------------------------ */
+function buildCircularPlane(maxR, ringCount, angularCount) {
+  const geom = new THREE.BufferGeometry();
+  const vertCount = 1 + ringCount * angularCount;
+  const positions = new Float32Array(vertCount * 3);
+  const indices = [];
+
+  // Center vertex
+  positions[0] = 0; positions[1] = 0; positions[2] = 0;
+
+  for (let r = 1; r <= ringCount; r++) {
+    const radius = (r / ringCount) * maxR;
+    for (let a = 0; a < angularCount; a++) {
+      const angle = (a / angularCount) * Math.PI * 2;
+      const idx = 1 + (r - 1) * angularCount + a;
+      positions[idx * 3 + 0] = Math.cos(angle) * radius;
+      positions[idx * 3 + 1] = Math.sin(angle) * radius;
+      positions[idx * 3 + 2] = 0;
+    }
+  }
+
+  // Center fan (center → ring 1)
+  for (let a = 0; a < angularCount; a++) {
+    const i1 = 1 + a;
+    const i2 = 1 + ((a + 1) % angularCount);
+    indices.push(0, i2, i1);
+  }
+  // Ring strips
+  for (let r = 1; r < ringCount; r++) {
+    const ringStart = 1 + (r - 1) * angularCount;
+    const nextRingStart = 1 + r * angularCount;
+    for (let a = 0; a < angularCount; a++) {
+      const aNext = (a + 1) % angularCount;
+      const i00 = ringStart + a;
+      const i01 = ringStart + aNext;
+      const i10 = nextRingStart + a;
+      const i11 = nextRingStart + aNext;
+      indices.push(i00, i11, i10);
+      indices.push(i00, i01, i11);
+    }
+  }
+
+  geom.setIndex(indices);
+  geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+  geom.computeVertexNormals();
+  return geom;
 }
 
 /* ------------------------------------------------------------------ */
