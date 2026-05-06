@@ -83,12 +83,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Caption chip — top-right of hero, hints interactivity */}
-      <div className="absolute top-24 md:top-28 right-6 md:right-10 lg:right-12 z-10 inline-flex items-center gap-2 bg-[#0A192F]/65 border border-white/10 backdrop-blur-md px-3 py-2 text-[10px] uppercase tracking-[0.22em] font-display text-slate-200 pointer-events-none">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#60A5FA] sn-pulse-ring" />
-        Scroll to rotate · 3D vessel
-      </div>
-
       {/* Bottom marker */}
       <div className="absolute bottom-0 left-0 right-0 z-10 border-t border-white/10 bg-[#0A192F]/65 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto w-full px-6 md:px-10 lg:px-12 h-14 flex items-center justify-between text-[11px] tracking-[0.22em] uppercase text-slate-400 font-display">

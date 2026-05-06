@@ -54,16 +54,25 @@ export default function AboutScene() {
     const network = new THREE.Group();
     scene.add(network);
 
+    // ----- Vibrant brand-aligned palette -----
+    const PALETTE = [
+      0x2563eb, // blue
+      0x60a5fa, // light blue
+      0x22d3ee, // cyan
+      0x10b981, // emerald
+      0xfacc15, // amber
+      0xf97316, // orange
+      0xef4444, // red
+      0xec4899, // pink
+      0xa855f7, // purple
+      0x14b8a6, // teal
+    ];
+
     // ----- Particle nodes -----
     const NODE_COUNT = 60;
     const RADIUS = 9;
     const nodes = [];
-    const nodeGeom = new THREE.SphereGeometry(0.07, 14, 14);
-    const nodeMat = new THREE.MeshBasicMaterial({
-      color: 0x2563eb,
-      transparent: true,
-      opacity: 0.85,
-    });
+    const nodeGeom = new THREE.SphereGeometry(0.085, 14, 14);
     for (let i = 0; i < NODE_COUNT; i++) {
       // Distribute roughly on a wide flat shell with some thickness
       const u = Math.random();
@@ -74,29 +83,36 @@ export default function AboutScene() {
       const x = r * Math.sin(phi) * Math.cos(theta);
       const y = (Math.random() - 0.5) * 5.5;
       const z = r * Math.sin(phi) * Math.sin(theta) * 0.55; // flatten depth
-      const mesh = new THREE.Mesh(nodeGeom, nodeMat);
+      const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+      const mat = new THREE.MeshBasicMaterial({
+        color,
+        transparent: true,
+        opacity: 0.9,
+      });
+      const mesh = new THREE.Mesh(nodeGeom, mat);
       mesh.position.set(x, y, z);
       mesh.userData = {
         baseY: y,
         speed: 0.3 + Math.random() * 0.5,
         phase: Math.random() * Math.PI * 2,
         amp: 0.2 + Math.random() * 0.35,
+        color,
       };
       network.add(mesh);
       nodes.push(mesh);
     }
 
-    // ----- Pulse rings around a few "hub" nodes -----
+    // ----- Pulse rings around a few "hub" nodes (inherit node colour) -----
     const hubIndices = [0, 7, 14, 23, 31, 42];
-    const hubRingMat = new THREE.MeshBasicMaterial({
-      color: 0x60a5fa,
-      transparent: true,
-      opacity: 0.4,
-      side: THREE.DoubleSide,
-    });
     const hubRings = hubIndices.map((idx) => {
-      const ringGeom = new THREE.RingGeometry(0.16, 0.18, 32);
-      const ring = new THREE.Mesh(ringGeom, hubRingMat.clone());
+      const ringGeom = new THREE.RingGeometry(0.18, 0.21, 32);
+      const mat = new THREE.MeshBasicMaterial({
+        color: nodes[idx].userData.color,
+        transparent: true,
+        opacity: 0.55,
+        side: THREE.DoubleSide,
+      });
+      const ring = new THREE.Mesh(ringGeom, mat);
       ring.position.copy(nodes[idx].position);
       ring.userData = { phase: Math.random() * Math.PI * 2 };
       network.add(ring);
@@ -124,12 +140,22 @@ export default function AboutScene() {
     }
 
     const linePositions = new Float32Array(linePairs.length * 2 * 3);
+    const lineColors = new Float32Array(linePairs.length * 2 * 3);
+    // Each line takes the avg colour of its endpoint nodes
+    for (let i = 0; i < linePairs.length; i++) {
+      const ca = new THREE.Color(nodes[linePairs[i].a].userData.color);
+      const cb = new THREE.Color(nodes[linePairs[i].b].userData.color);
+      const o = i * 6;
+      lineColors[o + 0] = ca.r; lineColors[o + 1] = ca.g; lineColors[o + 2] = ca.b;
+      lineColors[o + 3] = cb.r; lineColors[o + 4] = cb.g; lineColors[o + 5] = cb.b;
+    }
     const lineGeom = new THREE.BufferGeometry();
     lineGeom.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
+    lineGeom.setAttribute("color", new THREE.BufferAttribute(lineColors, 3));
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0x93c5fd,
+      vertexColors: true,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.45,
     });
     const lines = new THREE.LineSegments(lineGeom, lineMat);
     network.add(lines);
@@ -146,16 +172,18 @@ export default function AboutScene() {
     const SHAPE_COUNT = 11;
     for (let i = 0; i < SHAPE_COUNT; i++) {
       const Geom = SHAPE_PRESETS[i % SHAPE_PRESETS.length]();
+      const wireColor = PALETTE[(i * 3) % PALETTE.length];
+      const fillColor = PALETTE[(i * 3 + 5) % PALETTE.length];
       const wireMat = new THREE.MeshBasicMaterial({
-        color: 0x1e40af,
+        color: wireColor,
         wireframe: true,
         transparent: true,
-        opacity: 0.32,
+        opacity: 0.45,
       });
       const fillMat = new THREE.MeshBasicMaterial({
-        color: 0x60a5fa,
+        color: fillColor,
         transparent: true,
-        opacity: 0.07,
+        opacity: 0.12,
       });
       const grp = new THREE.Group();
       const wireMesh = new THREE.Mesh(Geom, wireMat);
@@ -229,7 +257,7 @@ export default function AboutScene() {
         ring.position.copy(nodes[nodeIdx].position);
         const t = (elapsed * 0.6 + ring.userData.phase) % 2;
         ring.scale.setScalar(1 + t * 5);
-        ring.material.opacity = Math.max(0, 0.45 * (1 - t / 2));
+        ring.material.opacity = Math.max(0, 0.55 * (1 - t / 2));
       });
 
       // Float and rotate commodity shapes
