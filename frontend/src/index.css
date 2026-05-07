@@ -110,6 +110,20 @@ code {
 .sn-delay-4 { animation-delay: 0.32s; }
 .sn-delay-5 { animation-delay: 0.40s; }
 
+/* Hide platform-injected badge */
+#emergent-badge,
+body #emergent-badge,
+html body #emergent-badge {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    left: -99999px !important;
+}
+
 /* ------- Reveal on scroll (IntersectionObserver toggles .is-visible) ------- */
 .sn-reveal {
     opacity: 0;
