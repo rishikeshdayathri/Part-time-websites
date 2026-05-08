@@ -34,12 +34,12 @@ export default function ShipScene() {
       powerPreference: "high-performance",
     });
     renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.setClearColor(0x000000, 0);
     mount.appendChild(renderer.domElement);
 
@@ -50,7 +50,7 @@ export default function ShipScene() {
     const sun = new THREE.DirectionalLight(0xffffff, 1.55);
     sun.position.set(6, 10, 6);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.mapSize.set(512, 512);
     sun.shadow.camera.near = 1;
     sun.shadow.camera.far = 30;
     sun.shadow.camera.left = -10;
@@ -90,7 +90,7 @@ export default function ShipScene() {
     const WATER_RGB   = { r: 0.106, g: 0.247, b: 0.420 }; // ~ #1B3F6B
     const HORIZON_RGB = { r: 0.082, g: 0.157, b: 0.290 }; // ~ #15284A (matches fog)
 
-    const waterGeom = buildCircularPlane(MAX_R, 90, 144);
+    const waterGeom = buildCircularPlane(MAX_R, 56, 96);
 
     // Per-vertex radial blend factor (1 = ocean, 0 = horizon)
     const fadeArr = new Float32Array(waterGeom.attributes.position.count);
@@ -123,7 +123,7 @@ export default function ShipScene() {
     scene.add(water);
 
     // Foam crest layer (mirrors water geometry; carries per-vertex intensity)
-    const foamGeom = buildCircularPlane(MAX_R, 90, 144);
+    const foamGeom = buildCircularPlane(MAX_R, 56, 96);
     const foamMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
       transparent: true,
@@ -168,13 +168,18 @@ export default function ShipScene() {
     wake.position.set(-4.4, -0.535, 0);
     shipPivot.add(wake);
 
-    // ----- Auto + scroll-driven rotation -----
-    let autoAngle = 0;                         // continuous spin
-    let scrollAngle = 0;                       // animated towards scroll target
-    let scrollTarget = 0;                      // target derived from window.scrollY
-    const SCROLL_FACTOR = 0.0035;              // px → radians
+    // ----- Auto-move (diagonal) + scroll-to-move -----
+    const SAIL_SPEED   = 0.45;     // units per second along +X
+    const DIAGONAL     = 0.18;     // world Z offset per world X (drift away/closer)
+    const X_RANGE      = 12;       // wrap-around extent (-X_RANGE … +X_RANGE)
+    const SCROLL_X_FACTOR = 0.0035; // px → world units (scroll-to-move)
+    const baseY = 0;
+
+    let autoX = -X_RANGE * 0.4;    // start mostly left of centre
+    let scrollX = 0;               // eased current scroll offset
+    let scrollTargetX = 0;         // target derived from window.scrollY
     const updateScrollTarget = () => {
-      scrollTarget = (window.scrollY || 0) * SCROLL_FACTOR;
+      scrollTargetX = (window.scrollY || 0) * SCROLL_X_FACTOR;
     };
     updateScrollTarget();
     window.addEventListener("scroll", updateScrollTarget, { passive: true });
@@ -190,13 +195,22 @@ export default function ShipScene() {
       lastT = now;
       const elapsed = now / 1000;
 
-      // Continuous auto-rotate (~ 9 deg/sec)
-      autoAngle += dt * 0.16;
+      // Continuous slow sail
+      autoX += dt * SAIL_SPEED;
+
+      // Wrap so the ship loops endlessly across the scene
+      let effectiveX = autoX + scrollX;
+      // Wrap effectiveX into [-X_RANGE, X_RANGE]
+      const span = X_RANGE * 2;
+      effectiveX = ((effectiveX + X_RANGE) % span + span) % span - X_RANGE;
 
       // Smoothly approach scroll target (eased)
-      scrollAngle += (scrollTarget - scrollAngle) * Math.min(1, dt * 6);
+      scrollX += (scrollTargetX - scrollX) * Math.min(1, dt * 5);
 
-      shipPivot.rotation.y = autoAngle + scrollAngle;
+      shipPivot.position.x = effectiveX;
+      shipPivot.position.z = -effectiveX * DIAGONAL;       // diagonal drift
+      shipPivot.rotation.y = Math.atan2(DIAGONAL, 1) * -1; // face the heading
+      shipPivot.position.y = baseY;
 
       // Gentle bob and roll on the inner ship (smaller, more realistic)
       ship.position.y = -0.05 + Math.sin(elapsed * 0.5) * 0.025;
